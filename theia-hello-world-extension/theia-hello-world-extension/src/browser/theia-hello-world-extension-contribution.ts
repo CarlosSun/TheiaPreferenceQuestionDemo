@@ -1,5 +1,5 @@
 import { injectable, inject, postConstruct } from "inversify";
-import { CommandContribution, CommandRegistry, MenuContribution, MenuModelRegistry, MessageService } from "@theia/core/lib/common";
+import { CommandContribution, CommandRegistry, MenuContribution, MenuModelRegistry, MessageService, DisposableCollection } from "@theia/core/lib/common";
 import { CommonMenus, PreferenceService, PreferenceScope } from "@theia/core/lib/browser";
 import * as intl from 'react-intl-universal';
 import { StudioLanguagePreferences } from "./studio-language-preference";
@@ -86,17 +86,26 @@ export class TheiaHelloWorldExtensionCommandContribution implements CommandContr
 @injectable()
 export class TheiaHelloWorldExtensionMenuContribution implements MenuContribution {
 
-    constructor(@inject (PreferenceService) protected readonly preferencesService: PreferenceService)
-    {
-        var settingLanguage = this.preferencesService.get('studio.language');
-        // The settingLanguage always fetching null
-        if (settingLanguage !== null)
-        {
-            intl.init({
-                currentLocale: settingLanguage as string,
-                locales,
-            })
-        }
+    protected toDispose = new DisposableCollection();
+
+    @inject (StudioLanguagePreferences)
+    protected readonly studioLanguagePreference : StudioLanguagePreferences
+
+    @inject(MenuModelRegistry)
+    protected readonly menuProvider: MenuModelRegistry;
+
+    @postConstruct()
+    protected init(): void {
+        this.studioLanguagePreference.onPreferenceChanged(e => {
+            if (e.preferenceName === TheiaHelloWorldExtensionCommandContribution.LANGUAGE_PREFERENCE) {
+                intl.init({
+                    currentLocale: e.newValue,
+                    locales,
+                })
+
+                this.updateMenus(this.menuProvider)
+            }
+        });
     }
     
     registerMenus(menus: MenuModelRegistry): void {  
@@ -105,5 +114,16 @@ export class TheiaHelloWorldExtensionMenuContribution implements MenuContributio
             commandId: TheiaHelloWorldExtensionCommand.id,
             label: intl.get("CHANGE_LANGUAGE") // Get the I10N label value
         });
+    }
+
+    updateMenus(menus: MenuModelRegistry) {
+        this.toDispose.dispose();
+
+        this.toDispose.push(
+            menus.registerMenuAction(CommonMenus.EDIT_FIND, {
+                commandId: TheiaHelloWorldExtensionCommand.id,
+                label: intl.get("CHANGE_LANGUAGE") // Get the I10N label value
+            })
+        );
     }
 }
