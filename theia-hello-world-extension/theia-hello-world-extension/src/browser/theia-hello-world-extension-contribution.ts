@@ -109,11 +109,6 @@ export class TheiaHelloWorldExtensionMenuContribution implements MenuContributio
     }
     
     registerMenus(menus: MenuModelRegistry): void {  
-        menus.unregisterMenuAction(TheiaHelloWorldExtensionCommand.id);
-        menus.registerMenuAction(CommonMenus.EDIT_FIND, {
-            commandId: TheiaHelloWorldExtensionCommand.id,
-            label: intl.get("CHANGE_LANGUAGE") // Get the I10N label value
-        });
     }
 
     updateMenus(menus: MenuModelRegistry) {
