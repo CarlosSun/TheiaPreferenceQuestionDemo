@@ -1,8 +1,9 @@
 import { injectable, inject, postConstruct } from "inversify";
 import { CommandContribution, CommandRegistry, MenuContribution, MenuModelRegistry, MessageService, DisposableCollection } from "@theia/core/lib/common";
-import { CommonMenus, PreferenceService, PreferenceScope } from "@theia/core/lib/browser";
+import { CommonMenus, PreferenceService, PreferenceScope, FrontendApplication  } from "@theia/core/lib/browser";
 import * as intl from 'react-intl-universal';
 import { StudioLanguagePreferences } from "./studio-language-preference";
+import { BrowserMenuBarContribution } from '@theia/core/lib/browser/menu/browser-menu-plugin';
 
 const locales = {
     "en-US": require('../common/i18n/en.json'),
@@ -18,6 +19,27 @@ export var TheiaHelloWorldExtensionCommand = {
     id: 'TheiaHelloWorldExtension.command',
     label: intl.get("CHANGE_LANGUAGE")
 };
+
+@injectable()
+export class DynamicBrowserMenuBarContribution extends BrowserMenuBarContribution {
+
+    protected app: FrontendApplication;
+
+    onStart(app: FrontendApplication): void {
+        this.app = app;
+        super.onStart(app);
+    }
+
+    update(): void {
+        const menuBar = this.menuBar;
+        if (menuBar) {
+            menuBar.dispose();
+        }
+        const menu = this.factory.createMenuBar();
+        this.app.shell.addWidget(menu, { area: 'top' });
+    }
+
+}
 
 @injectable()
 export class TheiaHelloWorldExtensionCommandContribution implements CommandContribution {
@@ -94,6 +116,9 @@ export class TheiaHelloWorldExtensionMenuContribution implements MenuContributio
     @inject(MenuModelRegistry)
     protected readonly menuProvider: MenuModelRegistry;
 
+    @inject(DynamicBrowserMenuBarContribution)
+    protected readonly menuBarContribution: DynamicBrowserMenuBarContribution;
+
     @postConstruct()
     protected init(): void {
         this.studioLanguagePreference.onPreferenceChanged(e => {
@@ -120,5 +145,7 @@ export class TheiaHelloWorldExtensionMenuContribution implements MenuContributio
                 label: intl.get("CHANGE_LANGUAGE") // Get the I10N label value
             })
         );
+
+        this.menuBarContribution.update();
     }
 }
