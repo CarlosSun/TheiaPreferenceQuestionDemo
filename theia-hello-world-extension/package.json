@@ -10,7 +10,8 @@
   },
   "workspaces": [
     "theia-hello-world-extension",
-    "electron-app"
+    "electron-app",
+    "browser-app"
   ],
   "dependencies": {
     "@theia/node-pty": "0.9.0-theia.6",

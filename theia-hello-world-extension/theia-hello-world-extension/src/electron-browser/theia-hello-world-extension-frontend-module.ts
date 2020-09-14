@@ -3,7 +3,7 @@
  */
 import { TheiaHelloWorldExtensionCommandContribution, TheiaHelloWorldExtensionMenuContribution, ElectronMenuUpdater } 
 from './theia-hello-world-extension-contribution';
-import {bindStudioLanguagePreferences} from './studio-language-preference';
+import {bindStudioLanguagePreferences} from '../browser/studio-language-preference';
 import {
     CommandContribution,
     MenuContribution

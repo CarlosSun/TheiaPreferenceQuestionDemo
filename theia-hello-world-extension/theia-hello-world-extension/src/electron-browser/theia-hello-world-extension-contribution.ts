@@ -2,7 +2,7 @@ import { injectable, inject, postConstruct } from "inversify";
 import { CommandContribution, CommandRegistry, MenuContribution, MenuModelRegistry, MessageService, DisposableCollection } from "@theia/core/lib/common";
 import { CommonMenus, PreferenceService, PreferenceScope } from "@theia/core/lib/browser"; 
 import * as intl from 'react-intl-universal';
-import { StudioLanguagePreferences } from "./studio-language-preference";
+import { StudioLanguagePreferences } from "../browser/studio-language-preference";
 import { ElectronMainMenuFactory } from '@theia/core/lib/electron-browser/menu/electron-main-menu-factory';
 import { remote, Menu, BrowserWindow } from 'electron';
 import { isOSX } from '@theia/core/lib/common/os';
