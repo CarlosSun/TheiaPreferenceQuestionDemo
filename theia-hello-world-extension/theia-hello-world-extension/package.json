@@ -20,7 +20,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "build": "gulp copy_json_files && tsc",
+    "build": "gulp copy_i18n_files && tsc",
     "watch": "tsc -w"
   },
   "theiaExtensions": [
