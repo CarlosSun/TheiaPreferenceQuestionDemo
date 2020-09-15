@@ -1,10 +1,11 @@
 {
   "private": true,
-  "name": "browser-app",
+  "name": "electron-app",
   "version": "0.0.0",
   "dependencies": {
     "@theia/core": "latest",
     "@theia/editor": "latest",
+    "@theia/electron": "latest",
     "@theia/filesystem": "latest",
     "@theia/markers": "latest",
     "@theia/messages": "latest",
@@ -25,6 +26,6 @@
     "watch": "theia build --watch --mode development"
   },
   "theia": {
-    "target": "browser"
+    "target": "electron"
   }
 }

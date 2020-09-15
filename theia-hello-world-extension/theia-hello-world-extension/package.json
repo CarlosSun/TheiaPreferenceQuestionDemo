@@ -20,12 +20,13 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "build": "gulp copy_json_files && tsc",
+    "build": "gulp copy_i18n_files && tsc",
     "watch": "tsc -w"
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/theia-hello-world-extension-frontend-module"
+      "frontend": "lib/browser/theia-hello-world-extension-frontend-module",
+      "frontendElectron": "lib/electron-browser/theia-hello-world-extension-frontend-module"
     }
   ]
 }
