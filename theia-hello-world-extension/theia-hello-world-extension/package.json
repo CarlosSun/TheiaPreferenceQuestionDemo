@@ -26,7 +26,8 @@
   "theiaExtensions": [
     {
       "frontend": "lib/browser/theia-hello-world-extension-frontend-module",
-      "frontendElectron": "lib/electron-browser/theia-hello-world-extension-frontend-module"
+      "frontendElectron": "lib/electron-browser/theia-hello-world-extension-frontend-module",
+      "electronMain": "lib/electron-main/electron-updater-module"
     }
   ]
 }

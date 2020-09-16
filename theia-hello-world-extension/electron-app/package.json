@@ -2,6 +2,7 @@
   "private": true,
   "name": "electron-app",
   "version": "0.0.0",
+  "main": "src-gen/frontend/electron-main.js",
   "dependencies": {
     "@theia/core": "latest",
     "@theia/editor": "latest",
@@ -15,17 +16,37 @@
     "@theia/process": "latest",
     "@theia/terminal": "latest",
     "@theia/workspace": "latest",
+    "electron-updater": "^4.3.1",
+    "electron-log": "4.2.4",
+    "xterm": "^2.9.2",
+    "yargs": "^9.0.1",
     "theia-hello-world-extension": "0.0.0"
   },
   "devDependencies": {
-    "@theia/cli": "latest"
+    "@theia/cli": "latest",
+    "electron-builder": "^19.30.2",
+    "bufferutil": "4.0.1",
+    "utf-8-validate": "5.0.2",
+    "typescript": "3.4.3",
+    "xterm-addon-fit": "0.4.0",
+    "xterm-addon-search": "0.7.0"
   },
   "scripts": {
     "prepare": "theia build --mode development",
     "start": "theia start",
-    "watch": "theia build --watch --mode development"
+    "watch": "theia build --watch --mode development",
+    "build": "theia build",
+    "package": "yarn run build && electron-builder"
   },
   "theia": {
     "target": "electron"
+  },
+  "build": {
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://localhost:8001/"
+      }
+    ]
   }
 }
