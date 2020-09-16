@@ -9,7 +9,6 @@ autoUpdater.logger = log;
 export class ElectronUpdaterContribution implements ElectronMainApplicationContribution {
     onStart(application: ElectronMainApplication): void {
         console.log('Check upgrade server if new version app is ready');
-        autoUpdater
         autoUpdater.checkForUpdatesAndNotify();
     }
 
