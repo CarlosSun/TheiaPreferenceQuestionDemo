@@ -14,9 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { remote, Menu, BrowserWindow } from 'electron';
 import { inject, injectable, postConstruct } from 'inversify';
-import { isOSX } from '@theia/core/lib/common/os';
 import { CommonMenus } from '@theia/core/lib/browser';
 import {
     Emitter,
@@ -26,12 +24,20 @@ import {
     MenuModelRegistry,
     MenuContribution,
     CommandRegistry,
-    CommandContribution
+    CommandContribution,
+    DisposableCollection
 } from '@theia/core/lib/common';
-import { ElectronMainMenuFactory } from '@theia/core/lib/electron-browser/menu/electron-main-menu-factory';
+import { StudioLanguagePreferences } from "../browser/studio-language-preference";
+import * as intl from 'react-intl-universal';
 import { StudioUpdater, StudioUpdaterClient, UpdateStatus } from '../common/updater/studio-updater'
+import {ElectronMenuUpdater} from "./electron-menu-updater";
 const log = require("electron-log");
 log.transports.file.level = "debug";
+
+const locales = {
+    "en-US": require('../common/i18n/en.json'),
+    "zh-CN": require('../common/i18n/cn.json'),
+};
 
 export namespace StudioUpdaterCommands {
 
@@ -39,13 +45,13 @@ export namespace StudioUpdaterCommands {
 
     export const CHECK_FOR_UPDATES: Command = {
         id: 'flexem-studio:check-for-updates',
-        label: 'Check for Updates...',
+        label: intl.get('CheckForUpdates_Label'),
         category
     };
 
     export const RESTART_TO_UPDATE: Command = {
         id: 'flexem-studio:restart-to-update',
-        label: 'Restart to Update (1)',
+        label: intl.get('RestartToUpdate_Label'),
         category
     };
 }
@@ -72,26 +78,6 @@ export class StudioUpdaterClientImpl implements StudioUpdaterClient {
     }
 }
 
-// Dynamic menus aren't yet supported by electron: https://github.com/eclipse-theia/theia/issues/446
-@injectable()
-export class ElectronMenuUpdater {
-
-    @inject(ElectronMainMenuFactory)
-    protected readonly factory: ElectronMainMenuFactory;
-
-    public update(): void {
-        this.setMenu();
-    }
-
-    private setMenu(menu: Menu = this.factory.createMenuBar(), electronWindow: BrowserWindow = remote.getCurrentWindow()): void {
-        if (isOSX) {
-            remote.Menu.setApplicationMenu(menu);
-        } else {
-            electronWindow.setMenu(menu);
-        }
-    }
-}
-
 @injectable()
 export class StudioUpdaterFrontendContribution implements CommandContribution, MenuContribution {
 
@@ -106,6 +92,14 @@ export class StudioUpdaterFrontendContribution implements CommandContribution, M
 
     @inject(MessageService)
     protected readonly messageService: MessageService;
+
+    @inject (StudioLanguagePreferences)
+    protected readonly studioLanguagePreference : StudioLanguagePreferences
+
+    @inject(MenuModelRegistry)
+    protected readonly menuProvider: MenuModelRegistry;
+
+    protected toDispose = new DisposableCollection();
 
     protected readyToUpdate = false;
 
@@ -127,23 +121,34 @@ export class StudioUpdaterFrontendContribution implements CommandContribution, M
                     break;
                 }
                 case UpdateStatus.NotAvailable: {
-                    this.messageService.info(`You’re all good. You’ve got the latest version`, { timeout: 5000 });
+                    this.messageService.info(intl.get('AppGetLatestVersion_Message'), { timeout: 5000 });
                     break;
                 }
                 case UpdateStatus.DownloadProcessing: {
-                    this.messageService.warn(`Update downloading: ${ message.progress }`, { timeout: 1000 });
+                    this.messageService.warn(`${intl.get('AppUpdateDownloading_Message')}${ message.progress }`, { timeout: 1000 });
                     break;
                 }
                 case UpdateStatus.DownloadComplete: {
-                    this.messageService.info('Update is ready, it will be installed when you quit the app', { timeout: 5000 });
+                    this.messageService.info(intl.get('AppUpdateDownloadComplete_Message'), { timeout: 5000 });
                     break;
                 }
                 case UpdateStatus.Error: {
-                    this.messageService.error('Error occurs', {timeout: 5000});
+                    this.messageService.warn(intl.get('AppGetLatestVersion_Message'), { timeout: 5000 });
                 }
                 default: log.info('default status, nothing to do');
             }
         })
+
+        this.studioLanguagePreference.onPreferenceChanged((e: any) => {
+            if (e.preferenceName === 'studio.language') {
+                intl.init({
+                    currentLocale: e.newValue,
+                    locales,
+                })
+
+                this.updateMenus(this.menuProvider)
+            }
+        });
     }
 
     registerCommands(registry: CommandRegistry): void {
@@ -158,7 +163,7 @@ export class StudioUpdaterFrontendContribution implements CommandContribution, M
         registry.registerCommand(StudioUpdaterCommands.RESTART_TO_UPDATE, {
             execute: () => {
                 this.updater.onRestartToUpdateRequested();
-                this.messageService.info('Updates is ready, it will be installed when you quit the app', { timeout: 3000 });
+                this.messageService.info(intl.get('AppUpdateDownloadComplete_Message'), { timeout: 3000 });
             },
             isEnabled: () => this.readyToUpdate,
             isVisible: () => this.readyToUpdate
@@ -166,17 +171,31 @@ export class StudioUpdaterFrontendContribution implements CommandContribution, M
     }
 
     registerMenus(registry: MenuModelRegistry): void {
-        registry.registerMenuAction(StudioUpdaterMenu.MENU_PATH, {
-            commandId: StudioUpdaterCommands.CHECK_FOR_UPDATES.id
-        });
-        registry.registerMenuAction(StudioUpdaterMenu.MENU_PATH, {
-            commandId: StudioUpdaterCommands.RESTART_TO_UPDATE.id
-        });
+    }
+
+    updateMenus(menus: MenuModelRegistry) {
+        this.toDispose.dispose();
+
+        this.toDispose.push(
+            menus.registerMenuAction(StudioUpdaterMenu.MENU_PATH, {
+                commandId: StudioUpdaterCommands.CHECK_FOR_UPDATES.id,
+                label: intl.get('CheckForUpdates_Label')
+            })
+        )
+
+        this.toDispose.push(
+            menus.registerMenuAction(StudioUpdaterMenu.MENU_PATH, {
+                commandId: StudioUpdaterCommands.RESTART_TO_UPDATE.id,
+                label: intl.get('RestartToUpdate_Label')
+            })
+        )
+
+        this.menuUpdater.update();
     }
 
     protected async handleUpdatesAvailable(): Promise<void> {
-        const answer = await this.messageService.info('Found updates, do you want update now?', 'No', 'Yes');
-        if (answer === 'Yes') {
+        const answer = await this.messageService.info(intl.get('AppDetectedUpdateRequestDownload_Message'), intl.get('ChooseYes'), intl.get('ChooseLater'));
+        if (answer === intl.get('ChooseYes')) {
             this.updater.onUpdateDownloadRequested();
         }
     }

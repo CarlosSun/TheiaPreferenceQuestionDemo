@@ -3,9 +3,7 @@ import { CommandContribution, CommandRegistry, MenuContribution, MenuModelRegist
 import { CommonMenus, PreferenceService, PreferenceScope } from "@theia/core/lib/browser"; 
 import * as intl from 'react-intl-universal';
 import { StudioLanguagePreferences } from "../browser/studio-language-preference";
-import { ElectronMainMenuFactory } from '@theia/core/lib/electron-browser/menu/electron-main-menu-factory';
-import { remote, Menu, BrowserWindow } from 'electron';
-import { isOSX } from '@theia/core/lib/common/os';
+import {ElectronMenuUpdater} from "./electron-menu-updater";
 const locales = {
     "en-US": require('../common/i18n/en.json'),
     "zh-CN": require('../common/i18n/cn.json'),
@@ -81,25 +79,6 @@ export class TheiaHelloWorldExtensionCommandContribution implements CommandContr
 }
 
 @injectable()
-export class ElectronMenuUpdater {
-
-    @inject(ElectronMainMenuFactory)
-    protected readonly factory: ElectronMainMenuFactory;
-
-    public update(): void {
-        this.setMenu();
-    }
-
-    private setMenu(menu: Menu = this.factory.createMenuBar(), electronWindow: BrowserWindow = remote.getCurrentWindow()): void {
-        if (isOSX) {
-            remote.Menu.setApplicationMenu(menu);
-        } else {
-            electronWindow.setMenu(menu);
-        }
-    }
-}
-
-@injectable()
 export class TheiaHelloWorldExtensionMenuContribution implements MenuContribution {
 
     protected toDispose = new DisposableCollection();
@@ -115,7 +94,7 @@ export class TheiaHelloWorldExtensionMenuContribution implements MenuContributio
 
     @postConstruct()
     protected init(): void {
-        this.studioLanguagePreference.onPreferenceChanged(e => {
+        this.studioLanguagePreference.onPreferenceChanged((e: any) => {
             if (e.preferenceName === TheiaHelloWorldExtensionCommandContribution.LANGUAGE_PREFERENCE) {
                 intl.init({
                     currentLocale: e.newValue,

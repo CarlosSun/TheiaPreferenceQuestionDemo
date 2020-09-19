@@ -1,4 +1,13 @@
 {
 	"CHANGE_LANGUAGE":"切换语言",
-	"CHANGE_LANGUAGE_MESSAGE": "After restart, the changed language will tack effort"
+	"CHANGE_LANGUAGE_MESSAGE": "After restart, the changed language will tack effort",
+	"CheckForUpdates_Label": "Check for Updates...",
+	"RestartToUpdate_Label": "Restart to Update (1)",
+	"AppGetLatestVersion_Message": "You’re all good. You’ve got the latest version",
+	"AppUpdateDownloading_Message": "Update downloading: ",
+	"AppUpdateDownloadComplete_Message": "Update is ready, it will be installed when you quit the app",
+	"AppUpdateErrorOccurs_Message": "Error occurs",
+	"AppDetectedUpdateRequestDownload_Message": "Found updates, do you want to download and update now?",
+	"ChooseYes": "Sure",
+	"ChooseLater": "Later"
 }

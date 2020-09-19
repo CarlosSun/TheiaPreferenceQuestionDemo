@@ -1,4 +1,13 @@
 {
 	"CHANGE_LANGUAGE":"Switch Language",
-	"CHANGE_LANGUAGE_MESSAGE": "语言切换重启后生效"
+	"CHANGE_LANGUAGE_MESSAGE": "语言切换重启后生效",
+	"CheckForUpdates_Label": "检查更新...",
+	"RestartToUpdate_Label": "重启安装更新 (1)",
+	"AppGetLatestVersion_Message": "您当前使用的是最新版本",
+	"AppUpdateDownloading_Message": "更新下载中: ",
+	"AppUpdateDownloadComplete_Message": "更新包已下载至本地，当您退出应用时会自动更新，安装更新可能需要持续数分钟",
+	"AppUpdateErrorOccurs_Message": "出错了",
+	"AppDetectedUpdateRequestDownload_Message": "检测到更新包，您需要现在下载吗？",
+	"ChooseYes": "是的",
+	"ChooseLater": "稍后"
 }

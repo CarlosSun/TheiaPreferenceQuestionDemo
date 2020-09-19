@@ -1,8 +1,9 @@
 /**
  * Generated using theia-extension-generator
  */
-import { TheiaHelloWorldExtensionCommandContribution, TheiaHelloWorldExtensionMenuContribution, ElectronMenuUpdater } 
+import { TheiaHelloWorldExtensionCommandContribution, TheiaHelloWorldExtensionMenuContribution } 
 from './theia-hello-world-extension-contribution';
+import {ElectronMenuUpdater} from "./electron-menu-updater";
 import {bindStudioLanguagePreferences} from '../browser/studio-language-preference';
 import {
     CommandContribution,

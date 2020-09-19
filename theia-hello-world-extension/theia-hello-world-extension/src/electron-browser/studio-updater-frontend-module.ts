@@ -18,10 +18,9 @@ import { ContainerModule } from 'inversify';
 import { ElectronIpcConnectionProvider } from '@theia/core/lib/electron-browser/messaging/electron-ipc-connection-provider';
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
 import { StudioUpdater, StudioUpdaterPath, StudioUpdaterClient } from '../common/updater/studio-updater';
-import { StudioUpdaterFrontendContribution, ElectronMenuUpdater, StudioUpdaterClientImpl } from './studio-updater-frontend-contribution';
+import { StudioUpdaterFrontendContribution, StudioUpdaterClientImpl } from './studio-updater-frontend-contribution';
 
 export default new ContainerModule(bind => {
-    bind(ElectronMenuUpdater).toSelf().inSingletonScope();
     bind(StudioUpdaterClientImpl).toSelf().inSingletonScope();
     bind(StudioUpdaterClient).toService(StudioUpdaterClientImpl);
     bind(StudioUpdater).toDynamicValue(context => {
